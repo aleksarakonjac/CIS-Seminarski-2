@@ -14,7 +14,7 @@ services:
       - wordpress_network
     depends_on:
       - wordpress_db
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/wp-login.php || exit 1"]
       interval: 30s
@@ -32,7 +32,7 @@ services:
       - ./db_data:/var/lib/mysql
     networks:
       - wordpress_network
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h wordpress_db"]
       interval: 30s
@@ -42,7 +42,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin1
-    restart: always
+    restart: on-failure
     ports:
       - "8083:80"
     networks:
