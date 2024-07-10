@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  wordpress:
+    container_name: wordpress_app1
+    image: wordpress:latest
+    env_file:
+      - .env
+    ports:
+      - "8082:80"
+    volumes:
+      - ./wordpress_data:/var/www/html
+    networks:
+      - wordpress_network
+    depends_on:
+      - wordpress_db
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/wp-login.php || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  wordpress_db:
+    container_name: wordpress_db1
+    image: mysql:5.7
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db_data:/var/lib/mysql
+    networks:
+      - wordpress_network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h wordpress_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin1
+    restart: always
+    ports:
+      - "8083:80"
+    networks:
+      - wordpress_network
+    environment:
+      PMA_HOST: wordpress_db
+      MYSQL_ROOT_PASSWORD: root_password
+
+networks:
+  wordpress_network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
+  wordpress_data:
+    driver: local
